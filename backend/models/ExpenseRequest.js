@@ -1,4 +1,3 @@
-// backend/models/ExpenseRequest.js
 import mongoose from "mongoose";
 
 const ItemSchema = new mongoose.Schema({

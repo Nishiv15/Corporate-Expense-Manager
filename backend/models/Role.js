@@ -1,4 +1,3 @@
-// backend/models/Role.js
 import mongoose from "mongoose";
 
 const RoleSchema = new mongoose.Schema({

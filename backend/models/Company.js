@@ -1,4 +1,3 @@
-// backend/models/Company.js
 import mongoose from "mongoose";
 
 const CompanySchema = new mongoose.Schema({

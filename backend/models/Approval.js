@@ -1,4 +1,3 @@
-// backend/models/Approval.js
 import mongoose from "mongoose";
 
 const ApprovalSchema = new mongoose.Schema({

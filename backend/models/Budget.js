@@ -1,4 +1,3 @@
-// backend/models/Budget.js
 import mongoose from "mongoose";
 
 const BudgetSchema = new mongoose.Schema({
