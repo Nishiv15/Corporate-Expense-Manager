@@ -129,4 +129,147 @@ const userLogin = async (req, res) => {
   }
 };
 
-export {userLogin, registerUser};
+const updateUser = async (req, res) => {
+  try {
+    const requester = req.user; // set by protect middleware
+    const companyId = requester.company;
+    const targetUserId = req.params.id;
+    const { password, role, roleTitleNew, approvalLimit, userType } = req.body;
+
+    // Basic checks
+    if (!companyId) return res.status(400).json({ message: "Requester not associated with a company" });
+
+    // Find target user
+    const targetUser = await User.findById(targetUserId);
+    if (!targetUser) return res.status(404).json({ message: "User not found" });
+
+    // Ensure target user belongs to the same company
+    if (!targetUser.company || targetUser.company.toString() !== companyId.toString()) {
+      return res.status(403).json({ message: "Cannot modify users outside your company" });
+    }
+
+    const isSelf = requester.id === targetUserId || requester._id?.toString() === targetUserId;
+    const isManagerOrAdmin = ["manager", "admin"].includes(requester.userType);
+
+    // If requester is not manager/admin and not self -> forbidden
+    if (!isSelf && !isManagerOrAdmin) {
+      return res.status(403).json({ message: "Forbidden: insufficient privileges" });
+    }
+
+    // If requester is self only, they can only change password
+    if (isSelf && !isManagerOrAdmin) {
+      if (!password) {
+        return res.status(400).json({ message: "Only password can be updated by the user themself" });
+      }
+      // Hash the password and update
+      const salt = await bcrypt.genSalt(10);
+      targetUser.passwordHash = await bcrypt.hash(password, salt);
+      await targetUser.save();
+
+      const sanitized = await User.findById(targetUser._id).select("-passwordHash").populate("role").lean();
+      return res.json({ message: "Password updated", user: sanitized });
+    }
+
+    // From here: requester is manager/admin OR self+manager/admin (managers can update everything)
+    // Managers/admins can update password, role, approvalLimit, userType
+
+    // 1) Update password if provided
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      targetUser.passwordHash = await bcrypt.hash(password, salt);
+    }
+
+    // 2) Update role if provided
+    if (role) {
+      let roleDoc = null;
+
+      // 1a. Find role by id (if role looks like ObjectId)
+      if (typeof role === "string" && role.match(/^[0-9a-fA-F]{24}$/)) {
+        roleDoc = await Role.findOne({ _id: role, company: companyId });
+        if (!roleDoc) {
+          return res.status(400).json({ message: "Role ID not found in this company" });
+        }
+      } else if (typeof role === "string") {
+        // 1b. Find by existing title (case-insensitive)
+        const normalizedTitle = role.trim();
+        roleDoc = await Role.findOne({
+          company: companyId,
+          title: { $regex: `^${normalizedTitle}$`, $options: "i" }  //regesx is used. It can be avoided by keeping the role name same to that as in DB
+        });
+        if (!roleDoc) {
+          return res.status(400).json({
+            message: `Role "${normalizedTitle}" does not exist in this company. Please create the role first.`
+          });
+        }
+      } else {
+        return res.status(400).json({ message: "Invalid role format" });
+      }
+
+      // 2. Optionally update the role document's title (roleTitleNew)
+      if (roleTitleNew && typeof roleTitleNew === "string") {
+        const newTitle = roleTitleNew.trim();
+        if (!newTitle) {
+          return res.status(400).json({ message: "roleTitleNew cannot be empty" });
+        }
+        roleDoc.title = newTitle;
+      }
+
+      // 3. Optionally update approvalLimit on the role
+      if (approvalLimit !== undefined && approvalLimit !== null) {
+        const parsed = Number(approvalLimit);
+        if (Number.isNaN(parsed) || parsed < 0) {
+          return res.status(400).json({ message: "approvalLimit must be a non-negative number" });
+        }
+        roleDoc.approvalLimit = parsed;
+      }
+
+      // Save changes to the role document (if any)
+      // This will persist title and/or approvalLimit updates if provided.
+      await roleDoc.save();
+
+      // 4. Assign role to the user
+      targetUser.role = roleDoc._id;
+    } else if (approvalLimit !== undefined && approvalLimit !== null) {
+      // If role param not supplied but approvalLimit provided,
+      // update the user's current role's approvalLimit (if exists)
+      const roleToUpdateId = targetUser.role;
+      if (!roleToUpdateId) {
+        return res.status(400).json({ message: "Cannot update approvalLimit: user has no role assigned" });
+      }
+      const roleToUpdate = await Role.findOne({ _id: roleToUpdateId, company: companyId });
+      if (!roleToUpdate) {
+        return res.status(400).json({ message: "Role to update not found in this company" });
+      }
+      const parsed = Number(approvalLimit);
+      if (Number.isNaN(parsed) || parsed < 0) {
+        return res.status(400).json({ message: "approvalLimit must be a non-negative number" });
+      }
+      roleToUpdate.approvalLimit = parsed;
+      await roleToUpdate.save();
+    }
+    
+    // 4) Update userType if provided
+    if (userType) {
+      if (!["employee", "manager", "admin"].includes(userType)) {
+        return res.status(400).json({ message: "Invalid userType. Allowed: employee, manager, admin" });
+      }
+      targetUser.userType = userType;
+    }
+
+    // Save the user
+    await targetUser.save();
+
+    // Return sanitized updated user
+    const sanitizedUser = await User.findById(targetUser._id)
+      .select("-passwordHash")
+      .populate("role")
+      .lean();
+
+    return res.json({ message: "User updated successfully", user: sanitizedUser });
+  } catch (error) {
+    console.error("updateEmployee error:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+export { userLogin, registerUser, updateUser };

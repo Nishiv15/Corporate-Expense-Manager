@@ -1,5 +1,5 @@
 import express from "express";
-import { userLogin, registerUser } from "../controllers/userController.js";
+import { userLogin, registerUser, updateUser } from "../controllers/userController.js";
 import { protect, restrictTo } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -10,5 +10,6 @@ const router = express.Router();
  */
 router.post("/login", userLogin);
 router.post("/register", protect, restrictTo("manager","admin"), registerUser);
+router.put("/:id", protect, updateUser)
 
 export default router;
