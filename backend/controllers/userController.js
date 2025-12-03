@@ -272,4 +272,94 @@ const updateUser = async (req, res) => {
   }
 };
 
-export { userLogin, registerUser, updateUser };
+const deleteUser = async (req, res) => {
+  try {
+    const requester = req.user; // from protect middleware
+    const companyId = requester.company;
+    const targetUserId = req.params.id;
+    const { confirm } = req.body;
+
+    if (!companyId) {
+      return res.status(400).json({ message: "Requester not associated with a company" });
+    }
+
+    // ===== UPDATED CODE START =====
+    // Only manager can delete users
+    if (requester.userType !== "manager") {
+      return res.status(403).json({ message: "Forbidden: only managers can delete users" });
+    }
+
+    // Require explicit confirm text
+    if (!confirm || confirm !== "Confirm") {
+      return res.status(400).json({
+        message: 'Deletion requires confirmation. Set body { "confirm": "Confirm" } to proceed.'
+      });
+    }
+    // ===== UPDATED CODE END =====
+
+    // Find target user
+    const targetUser = await User.findById(targetUserId).populate("role").exec();
+    if (!targetUser) return res.status(404).json({ message: "User not found" });
+
+    // Ensure target user belongs to same company
+    if (!targetUser.company || targetUser.company.toString() !== companyId.toString()) {
+      return res.status(403).json({ message: "Cannot delete users outside your company" });
+    }
+
+    // ===== SAFETY CHECK: prevent deleting last manager =====
+    if (targetUser.userType === "manager") {
+      const otherManagersCount = await User.countDocuments({
+        company: companyId,
+        userType: "manager",
+        _id: { $ne: targetUser._id },
+        isActive: true
+      });
+
+      if (otherManagersCount === 0) {
+        return res.status(400).json({
+          message: "Cannot delete this manager because they are the last active manager for the company."
+        });
+      }
+    }
+    // ===== END SAFETY CHECK =====
+
+    // Capture role id before deleting user
+    const roleId = targetUser.role ? targetUser.role._id : null;
+
+    // Hard-delete user document
+    const deleteResult = await User.deleteOne({ _id: targetUser._id });
+    if (deleteResult.deletedCount !== 1) {
+      return res.status(500).json({ message: "Failed to delete user" });
+    }
+
+    // Decide whether to delete the role document
+    let roleDeleted = false;
+    if (roleId) {
+      // Count other users in same company referencing this role
+      const refs = await User.countDocuments({
+        company: companyId,
+        role: roleId
+      });
+
+      // refs does NOT include the deleted user (we already removed them),
+      // so if refs === 0, no remaining users reference the role.
+      if (refs === 0) {
+        const roleDeleteResult = await Role.deleteOne({ _id: roleId, company: companyId });
+        if (roleDeleteResult.deletedCount === 1) {
+          roleDeleted = true;
+        }
+      }
+    }
+
+    return res.json({
+      message: "User deleted successfully",
+      userId: targetUserId,
+      roleDeleted
+    });
+  } catch (error) {
+    console.error("deleteUser error:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+export { userLogin, registerUser, updateUser, deleteUser };
