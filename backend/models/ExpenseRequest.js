@@ -13,7 +13,6 @@ const ExpenseSchema = new mongoose.Schema({
   items: [ItemSchema],
   totalAmount: { type: Number, required: true },
   category: { type: String },
-  budget: { type: mongoose.Schema.Types.ObjectId, ref: "Budget" },
   status: { type: String, enum: ["draft","submitted","approved","rejected"], default: "draft" },
   attachments: [String]
 }, { timestamps: true });
