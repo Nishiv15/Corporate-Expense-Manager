@@ -11,7 +11,7 @@ const createExpense = async (req, res) => {
     const companyId = requester.company;
     if (!companyId) return res.status(400).json({ message: "Requester not associated with a company" });
 
-    const { title, items = [], totalAmount, category, attachments = [] } = req.body;
+    const { title, items = [], totalAmount, department, attachments = [] } = req.body;
 
     if (!title || totalAmount === undefined) {
       return res.status(400).json({ message: "title and totalAmount are required" });
@@ -24,7 +24,7 @@ const createExpense = async (req, res) => {
       title,
       items,
       totalAmount,
-      category,
+      department,
       attachments,
       status: "draft"
     });

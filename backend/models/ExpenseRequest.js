@@ -12,7 +12,7 @@ const ExpenseSchema = new mongoose.Schema({
   title: { type: String, required: true },
   items: [ItemSchema],
   totalAmount: { type: Number, required: true },
-  category: { type: String },
+  department: { type: String },
   status: { type: String, enum: ["draft","submitted","approved","rejected"], default: "draft" },
   attachments: [String]
 }, { timestamps: true });
