@@ -36,4 +36,44 @@ const createExpense = async (req, res) => {
   }
 };
 
-export {createExpense};
+const getExpense = async (req, res) => {
+  try {
+    const expenseId = req.params.id;
+    const companyId = req.user.company;
+    const requesterId = req.user._id.toString();
+
+    const expense = await ExpenseRequest.findById(expenseId)
+      .populate("createdBy", "name email userType")
+      .populate({
+        path: "status",
+        populate: { path: "approver", select: "name email userType" }
+      })
+      .lean();
+
+    if (!expense) {
+      return res.status(404).json({ message: "Expense not found" });
+    }
+
+    // Company-level access check
+    if (expense.company.toString() !== companyId.toString()) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    // 🔐 DRAFT restriction
+    if (
+      expense.status === "draft" &&
+      expense.createdBy._id.toString() !== requesterId
+    ) {
+      return res.status(403).json({
+        message: "Draft expenses can only be viewed by the creator"
+      });
+    }
+
+    return res.json({ expense });
+  } catch (error) {
+    console.error("getExpense error:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+export {createExpense, getExpense};
