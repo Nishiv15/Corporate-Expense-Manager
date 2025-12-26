@@ -11,7 +11,7 @@ const createExpense = async (req, res) => {
     const companyId = requester.company;
     if (!companyId) return res.status(400).json({ message: "Requester not associated with a company" });
 
-    const { title, items = [], totalAmount, department, attachments = [] } = req.body;
+    const { title, items = [], totalAmount, department, attachments = [], status } = req.body;
 
     if (!title || totalAmount === undefined) {
       return res.status(400).json({ message: "title and totalAmount are required" });
@@ -26,7 +26,7 @@ const createExpense = async (req, res) => {
       totalAmount,
       department,
       attachments,
-      status: "draft"
+      status
     });
 
     return res.status(201).json({ message: "Expense created", expense });
@@ -76,4 +76,49 @@ const getExpense = async (req, res) => {
   }
 };
 
-export {createExpense, getExpense};
+const listExpenses = async (req, res) => {
+  try {
+    const companyId = req.user.company;
+    const userId = req.user._id;
+    const { status = "all" } = req.query;
+
+    if (!companyId) {
+      return res.status(400).json({ message: "User not associated with a company" });
+    }
+
+    let filter = { company: companyId };
+
+    if (status === "draft") {
+      // Only own drafts
+      filter.status = "draft";
+      filter.createdBy = userId;
+
+    } else if (["submitted", "approved", "rejected"].includes(status)) {
+      // Company-wide visible statuses
+      filter.status = status;
+
+    } else {
+      // status === "all"
+      filter.$or = [
+        { status: { $ne: "draft" } },
+        { status: "draft", createdBy: userId }
+      ];
+    }
+
+    const expenses = await ExpenseRequest.find(filter)
+      .populate("createdBy", "name email userType")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return res.json({
+      count: expenses.length,
+      expenses
+    });
+
+  } catch (error) {
+    console.error("listExpenses error:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+export {createExpense, getExpense, listExpenses};
