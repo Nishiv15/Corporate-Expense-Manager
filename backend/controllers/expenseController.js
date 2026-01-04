@@ -121,4 +121,64 @@ const listExpenses = async (req, res) => {
   }
 };
 
-export {createExpense, getExpense, listExpenses};
+const updateExpense = async (req, res) => {
+  try {
+    const expenseId = req.params.id;
+    const userId = req.user._id;
+    const companyId = req.user.company;
+
+    const {
+      title,
+      items,
+      totalAmount,
+      department,
+      attachments
+    } = req.body;
+
+    const expense = await ExpenseRequest.findById(expenseId);
+
+    if (!expense) {
+      return res.status(404).json({ message: "Expense not found" });
+    }
+
+    // Ensure same company
+    if (expense.company.toString() !== companyId.toString()) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    // Only creator can edit
+    if (expense.createdBy.toString() !== userId.toString()) {
+      return res.status(403).json({
+        message: "Only the creator can edit this expense"
+      });
+    }
+
+    // Only editable in draft state
+    if (expense.status !== "draft") {
+      return res.status(400).json({
+        message: "Expense can only be edited while in draft state"
+      });
+    }
+
+    // ===== UPDATE ALLOWED FIELDS ONLY =====
+    if (title !== undefined) expense.title = title;
+    if (items !== undefined) expense.items = items;
+    if (totalAmount !== undefined) expense.totalAmount = totalAmount;
+    if (department !== undefined) expense.department = department;
+    if (attachments !== undefined) expense.attachments = attachments;
+    // =====================================
+
+    await expense.save();
+
+    return res.json({
+      message: "Expense updated successfully",
+      expense
+    });
+
+  } catch (error) {
+    console.error("updateExpense error:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+export {createExpense, getExpense, listExpenses, updateExpense};
