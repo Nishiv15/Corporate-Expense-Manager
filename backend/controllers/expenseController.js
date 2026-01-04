@@ -181,4 +181,49 @@ const updateExpense = async (req, res) => {
   }
 };
 
-export {createExpense, getExpense, listExpenses, updateExpense};
+const deleteExpense = async (req, res) => {
+  try {
+    const expenseId = req.params.id;
+    const userId = req.user._id;
+    const companyId = req.user.company;
+
+    const expense = await ExpenseRequest.findById(expenseId);
+
+    if (!expense) {
+      return res.status(404).json({ message: "Expense not found" });
+    }
+
+    // Company ownership check
+    if (expense.company.toString() !== companyId.toString()) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    // Creator-only delete
+    if (expense.createdBy.toString() !== userId.toString()) {
+      return res.status(403).json({
+        message: "Only the creator can delete this expense"
+      });
+    }
+
+    // Draft-only delete
+    if (expense.status !== "draft") {
+      return res.status(400).json({
+        message: "Only draft expenses can be deleted"
+      });
+    }
+
+    // Hard delete
+    await ExpenseRequest.deleteOne({ _id: expense._id });
+
+    return res.json({
+      message: "Draft expense deleted successfully",
+      expenseId
+    });
+
+  } catch (error) {
+    console.error("deleteExpense error:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+export {createExpense, getExpense, listExpenses, updateExpense, deleteExpense};

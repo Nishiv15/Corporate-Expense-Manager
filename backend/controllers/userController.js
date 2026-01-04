@@ -283,7 +283,6 @@ const deleteUser = async (req, res) => {
       return res.status(400).json({ message: "Requester not associated with a company" });
     }
 
-    // ===== UPDATED CODE START =====
     // Only manager can delete users
     if (requester.userType !== "manager") {
       return res.status(403).json({ message: "Forbidden: only managers can delete users" });
@@ -295,7 +294,6 @@ const deleteUser = async (req, res) => {
         message: 'Deletion requires confirmation. Set body { "confirm": "Confirm" } to proceed.'
       });
     }
-    // ===== UPDATED CODE END =====
 
     // Find target user
     const targetUser = await User.findById(targetUserId).populate("role").exec();
