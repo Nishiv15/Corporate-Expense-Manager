@@ -226,4 +226,52 @@ const deleteExpense = async (req, res) => {
   }
 };
 
-export {createExpense, getExpense, listExpenses, updateExpense, deleteExpense};
+const submitExpense = async (req, res) => {
+  try {
+    const expenseId = req.params.id;
+    const userId = req.user._id;
+    const companyId = req.user.company;
+
+    const expense = await ExpenseRequest.findById(expenseId);
+
+    if (!expense) {
+      return res.status(404).json({ message: "Expense not found" });
+    }
+
+    // Company ownership check
+    if (expense.company.toString() !== companyId.toString()) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    // Creator-only submit
+    if (expense.createdBy.toString() !== userId.toString()) {
+      return res.status(403).json({
+        message: "Only the creator can submit this expense"
+      });
+    }
+
+    // Draft-only submit
+    if (expense.status !== "draft") {
+      return res.status(400).json({
+        message: "Only draft expenses can be submitted"
+      });
+    }
+
+    // Change status to submitted
+    expense.status = "submitted";
+    expense.submittedAt = new Date();
+
+    await expense.save();
+
+    return res.json({
+      message: "Expense submitted successfully",
+      expense
+    });
+
+  } catch (error) {
+    console.error("submitExpense error:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+export {createExpense, getExpense, listExpenses, updateExpense, deleteExpense, submitExpense};
