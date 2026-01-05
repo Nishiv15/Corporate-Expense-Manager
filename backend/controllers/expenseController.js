@@ -274,4 +274,77 @@ const submitExpense = async (req, res) => {
   }
 };
 
-export {createExpense, getExpense, listExpenses, updateExpense, deleteExpense, submitExpense};
+const approveExpense = async (req, res) => {
+  try {
+    const expenseId = req.params.id;
+    const { decision, comment } = req.body;
+
+    const userId = req.user._id;
+    const companyId = req.user.company;
+    const userType = req.user.userType;
+
+    // Manager-only
+    if (userType !== "manager") {
+      return res.status(403).json({
+        message: "Only managers can approve or reject expenses"
+      });
+    }
+
+    if (!["approved", "rejected"].includes(decision)) {
+      return res.status(400).json({
+        message: "Decision must be either 'approved' or 'rejected'"
+      });
+    }
+
+    const expense = await ExpenseRequest.findById(expenseId);
+
+    if (!expense) {
+      return res.status(404).json({ message: "Expense not found" });
+    }
+
+    // Company check
+    if (expense.company.toString() !== companyId.toString()) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    // Must be submitted
+    if (expense.status !== "submitted") {
+      return res.status(400).json({
+        message: "Only submitted expenses can be approved or rejected"
+      });
+    }
+
+    // Creator cannot approve own expense
+    if (expense.createdBy.toString() === userId.toString()) {
+      return res.status(403).json({
+        message: "You cannot approve or reject your own expense"
+      });
+    }
+
+    const approval = await Approval.create({
+      expense: expense._id,
+      approver: userId,
+      decision,
+      comment: comment || ""
+    });
+
+    // Update expense status
+    expense.status = decision;
+    expense.reviewedBy = userId;
+    expense.reviewedAt = new Date();
+    expense.approvals.push(approval._id);
+
+    await expense.save();
+
+    return res.json({
+      message: `Expense ${decision} successfully`,
+      expense
+    });
+
+  } catch (error) {
+    console.error("approveExpense error:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+export {createExpense, getExpense, listExpenses, updateExpense, deleteExpense, submitExpense, approveExpense};

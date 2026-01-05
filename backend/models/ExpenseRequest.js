@@ -14,7 +14,18 @@ const ExpenseSchema = new mongoose.Schema({
   totalAmount: { type: Number, required: true },
   department: { type: String },
   status: { type: String, enum: ["draft","submitted","approved","rejected"], default: "draft" },
-  attachments: [String]
+  attachments: [String],
+  approvals: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: "Approval",
+      default: []
+    },
+
+    reviewedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
+    },
+    reviewedAt: Date,
 }, { timestamps: true });
 
 const ExpenseRequest = mongoose.model("ExpenseRequest", ExpenseSchema);
