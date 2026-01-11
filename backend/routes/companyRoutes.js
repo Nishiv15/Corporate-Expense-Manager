@@ -1,6 +1,7 @@
 import express from "express";
-import { createCompanyWithManager, deleteCompany } from "../controllers/companyController.js";
-import {protect} from "../middleware/authMiddleware.js";
+import { createCompanyWithManager, deleteCompany, getCompanyById, getCompanies } from "../controllers/companyController.js";
+import {protect, restrictTo} from "../middleware/authMiddleware.js";
+import { get } from "mongoose";
 
 const router = express.Router();
 
@@ -10,5 +11,7 @@ const router = express.Router();
  */
 router.post("/register", createCompanyWithManager);
 router.delete("/:id", protect, deleteCompany);
+router.get("/:id", protect, getCompanyById);
+router.get("/", protect, restrictTo("admin"), getCompanies);
 
 export default router;

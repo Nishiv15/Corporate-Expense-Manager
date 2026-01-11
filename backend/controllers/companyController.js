@@ -146,4 +146,59 @@ const deleteCompany = async (req, res) => {
   }
 };
 
-export { createCompanyWithManager, deleteCompany };
+const getCompanyById = async (req, res) => {
+  try {
+    const requester = req.user;
+    const companyId = req.params.id;
+
+    const company = await Company.findById(companyId).lean();
+
+    if (!company || !company.isActive) {
+      return res.status(404).json({ message: "Company not found" });
+    }
+
+    // Manager can view only own company
+    if (
+      requester.userType === "manager" &&
+      requester.company.toString() !== companyId.toString()
+    ) {
+      return res.status(403).json({
+        message: "Managers can view only their own company"
+      });
+    }
+
+    // Admin can view any company (no restriction)
+
+    return res.json({ company });
+
+  } catch (error) {
+    console.error("getCompanyById error:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+const getCompanies = async (req, res) => {
+  try {
+    const requester = req.user;
+
+    // Admin-only
+    if (requester.userType !== "admin") {
+      return res.status(403).json({
+        message: "Only admins can view all companies"
+      });
+    }
+
+    const companies = await Company.find({ isActive: true }).lean();
+
+    return res.json({
+      count: companies.length,
+      companies
+    });
+
+  } catch (error) {
+    console.error("getCompanies error:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+export { createCompanyWithManager, deleteCompany, getCompanyById, getCompanies };
