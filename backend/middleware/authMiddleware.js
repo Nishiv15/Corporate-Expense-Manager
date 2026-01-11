@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import Company from "../models/Company.js";
 
 /**
  * protect - verifies JWT and attaches user to req.user
@@ -22,6 +23,10 @@ export const protect = async (req, res, next) => {
       if (!user) return res.status(401).json({ message: "User not found" });
       if (!user.isActive) {
         return res.status(401).json({ message: "User is inactive" });
+      }
+      const company = await Company.findById(user.company);
+      if (!company || !company.isActive) {
+        return res.status(401).json({ message: "Company inactive" });
       }
       req.user = user;
       return next();

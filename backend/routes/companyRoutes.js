@@ -1,5 +1,6 @@
 import express from "express";
-import { createCompanyWithManager } from "../controllers/companyController.js";
+import { createCompanyWithManager, deleteCompany } from "../controllers/companyController.js";
+import {protect} from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -8,5 +9,6 @@ const router = express.Router();
  * POST /api/companies
  */
 router.post("/register", createCompanyWithManager);
+router.delete("/:id", protect, deleteCompany);
 
 export default router;

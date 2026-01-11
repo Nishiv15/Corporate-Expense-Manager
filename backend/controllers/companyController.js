@@ -91,4 +91,59 @@ const createCompanyWithManager = async (req, res) => {
     }
 };
 
-export { createCompanyWithManager };
+const deleteCompany = async (req, res) => {
+  try {
+    const requester = req.user;
+    const companyId = req.params.id;
+    const { confirm } = req.body;
+
+    // Manager-only access
+    if (requester.userType !== "manager") {
+      return res.status(403).json({
+        message: "Only managers can delete the company"
+      });
+    }
+
+    // Confirmation check
+    if (!confirm || confirm !== "Confirm") {
+      return res.status(400).json({
+        message: 'Deletion requires confirmation. Set body { "confirm": "Confirm" } to proceed.'
+      });
+    }
+
+    // Ensure manager belongs to the company
+    if (requester.company.toString() !== companyId.toString()) {
+      return res.status(403).json({
+        message: "You can delete only your own company"
+      });
+    }
+
+    const company = await Company.findById(companyId);
+    if (!company || !company.isActive) {
+      return res.status(404).json({
+        message: "Company not found or already deleted"
+      });
+    }
+
+    // ===== SOFT DELETE COMPANY =====
+    company.isActive = false;
+    await company.save();
+
+    // ===== SOFT DELETE ALL USERS UNDER COMPANY =====
+    await User.updateMany(
+      { company: companyId, isActive: true },
+      { $set: { isActive: false } }
+    );
+
+    return res.json({
+      message: "Company deleted successfully",
+      companyId
+    });
+
+  } catch (error) {
+    console.error("deleteCompany error:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+export { createCompanyWithManager, deleteCompany };
