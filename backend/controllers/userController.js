@@ -319,30 +319,28 @@ const deleteUser = async (req, res) => {
         });
       }
     }
+
+    targetUser.isActive = false;
+    await targetUser.save();
     // ===== END SAFETY CHECK =====
 
     // Capture role id before deleting user
     const roleId = targetUser.role ? targetUser.role._id : null;
 
-    // Hard-delete user document
-    const deleteResult = await User.deleteOne({ _id: targetUser._id });
-    if (deleteResult.deletedCount !== 1) {
-      return res.status(500).json({ message: "Failed to delete user" });
-    }
-
-    // Decide whether to delete the role document
     let roleDeleted = false;
     if (roleId) {
-      // Count other users in same company referencing this role
-      const refs = await User.countDocuments({
+      const activeRefs = await User.countDocuments({
         company: companyId,
-        role: roleId
+        role: roleId,
+        isActive: true   // 🔑 IMPORTANT
       });
 
-      // refs does NOT include the deleted user (we already removed them),
-      // so if refs === 0, no remaining users reference the role.
-      if (refs === 0) {
-        const roleDeleteResult = await Role.deleteOne({ _id: roleId, company: companyId });
+      if (activeRefs === 0) {
+        const roleDeleteResult = await Role.deleteOne({
+          _id: roleId,
+          company: companyId
+        });
+
         if (roleDeleteResult.deletedCount === 1) {
           roleDeleted = true;
         }
@@ -350,7 +348,7 @@ const deleteUser = async (req, res) => {
     }
 
     return res.json({
-      message: "User deleted successfully",
+      message: "User deactivated successfully",
       userId: targetUserId,
       roleDeleted
     });

@@ -16,8 +16,13 @@ export const protect = async (req, res, next) => {
       token = req.headers.authorization.split(" ")[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       // attach user (without passwordHash)
-      const user = await User.findById(decoded.id).select("-passwordHash").lean();
+      const user = await User.findById(decoded.id)
+        .select("-passwordHash")
+        .lean();
       if (!user) return res.status(401).json({ message: "User not found" });
+      if (!user.isActive) {
+        return res.status(401).json({ message: "User is inactive" });
+      }
       req.user = user;
       return next();
     } catch (err) {
@@ -34,9 +39,12 @@ export const protect = async (req, res, next) => {
  */
 export const restrictTo = (...allowed) => {
   return (req, res, next) => {
-    if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+    if (!req.user)
+      return res.status(401).json({ message: "Not authenticated" });
     if (!allowed.includes(req.user.userType)) {
-      return res.status(403).json({ message: "Forbidden: insufficient privileges" });
+      return res
+        .status(403)
+        .json({ message: "Forbidden: insufficient privileges" });
     }
     next();
   };
