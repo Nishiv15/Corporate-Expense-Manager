@@ -358,4 +358,71 @@ const deleteUser = async (req, res) => {
   }
 };
 
-export { userLogin, registerUser, updateUser, deleteUser };
+const getUsers = async (req, res) => {
+  try {
+    const requester = req.user;
+
+    // Manager-only
+    if (requester.userType !== "manager") {
+      return res.status(403).json({
+        message: "Only managers can view users"
+      });
+    }
+
+    const users = await User.find({
+      company: requester.company,
+      isActive: true
+    })
+      .select("-passwordHash")
+      .populate("role")
+      .lean();
+
+    return res.json({
+      count: users.length,
+      users
+    });
+
+  } catch (error) {
+    console.error("getUsers error:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+const getUserById = async (req, res) => {
+  try {
+    const requester = req.user;
+    const targetUserId = req.params.id;
+
+    const user = await User.findById(targetUserId)
+      .select("-passwordHash")
+      .populate("role")
+      .lean();
+
+    if (!user || !user.isActive) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Company check
+    if (user.company.toString() !== requester.company.toString()) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    // Employee can only view self
+    if (
+      requester.userType !== "manager" &&
+      requester._id.toString() !== targetUserId
+    ) {
+      return res.status(403).json({
+        message: "You can only view your own profile"
+      });
+    }
+
+    return res.json({ user });
+
+  } catch (error) {
+    console.error("getUserById error:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+export { userLogin, registerUser, updateUser, deleteUser, getUsers, getUserById };
