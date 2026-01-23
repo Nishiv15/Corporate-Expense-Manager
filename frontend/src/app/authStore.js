@@ -7,23 +7,21 @@ const useAuthStore = create(
       user: null,
       token: null,
       isAuthenticated: false,
+      hasHydrated: false,
 
       login: (user, token) =>
-        set({
-          user,
-          token,
-          isAuthenticated: true
-        }),
+        set({ user, token, isAuthenticated: true }),
 
       logout: () =>
-        set({
-          user: null,
-          token: null,
-          isAuthenticated: false
-        })
+        set({ user: null, token: null, isAuthenticated: false }),
+
+      setHydrated: () => set({ hasHydrated: true })
     }),
     {
-      name: "auth-storage" // localStorage key
+      name: "auth-storage",
+      onRehydrateStorage: () => (state) => {
+        state?.setHydrated();
+      }
     }
   )
 );
