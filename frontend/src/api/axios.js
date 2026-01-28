@@ -5,14 +5,11 @@ import useAuthStore from "../app/authStore";
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   headers: {
-    "Content-Type": "application/json"
-  }
+    "Content-Type": "application/json",
+  },
 });
 
-/**
- * Request Interceptor
- * - Attach JWT token if available
- */
+
 api.interceptors.request.use(
   (config) => {
     const { token } = useAuthStore.getState();
@@ -24,18 +21,24 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-/**
- * Response Interceptor
- * - Auto logout on 401
- */
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const status = error.response?.status;
+    const url = error.config?.url || "";
+
+    const isAuthRoute =
+      url.includes("/user/login") || url.includes("/companies/register");
+
+    if (status === 401 && !isAuthRoute) {
       const { logout } = useAuthStore.getState();
       logout();
+
+      // SPA-safe redirect
       window.location.href = "/login";
     }
+
     return Promise.reject(error);
   }
 );
