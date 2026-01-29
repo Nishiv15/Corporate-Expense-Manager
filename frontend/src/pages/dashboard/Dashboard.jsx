@@ -34,12 +34,12 @@ const Dashboard = () => {
           submittedRes,
           recentRes,
         ] = await Promise.all([
-          getExpenses(), // all
+          getExpenses(),
           getExpenses("draft"),
           getExpenses("approved"),
           getExpenses("rejected"),
           getExpenses("submitted"),
-          getExpenses("all"), // recent expenses
+          getExpenses("all"),
         ]);
 
         setStats({
@@ -50,7 +50,7 @@ const Dashboard = () => {
           submitted: submittedRes.data.count,
         });
 
-        // ✅ Sort by createdAt DESC
+        // Sort by createdAt DESC
         const sortedRecent = [...recentRes.data.expenses].sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
         );
