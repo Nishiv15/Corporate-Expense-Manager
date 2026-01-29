@@ -2,10 +2,10 @@ import { Routes, Route, Navigate } from "react-router-dom";
 
 import ProtectedRoute from "../components/guards/ProtectedRoute";
 import RoleGuard from "../components/guards/RoleGuard";
-// import AppLayout from "../components/layout/AppLayout";
+import AppLayout from "../components/layout/AppLayout";
 
 import Auth from "../pages/auth/Auth";
-// import Dashboard from "../pages/dashboard/Dashboard";
+import Dashboard from "../pages/dashboard/Dashboard";
 // import ExpenseList from "../pages/expenses/ExpenseList";
 // import ExpenseCreate from "../pages/expenses/ExpenseCreate";
 // import ExpenseDetails from "../pages/expenses/ExpenseDetails";
@@ -21,12 +21,12 @@ const AppRoutes = () => {
       <Route path="/login" element={<Auth />} />
 
       {/* Protected */}
-      {/* <Route element={<ProtectedRoute />}>
+      <Route element={<ProtectedRoute />}>
         <Route path="/app" element={<AppLayout />}>
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
 
-          <Route path="expenses">
+          {/* <Route path="expenses">
             <Route index element={<ExpenseList />} />
             <Route path="new" element={<ExpenseCreate />} />
             <Route path=":id" element={<ExpenseDetails />} />
@@ -36,11 +36,11 @@ const AppRoutes = () => {
             <Route path="users" element={<UserList />} />
             <Route path="users/new" element={<UserCreate />} />
             <Route path="company" element={<CompanyDetails />} />
-          </Route>
+          </Route> */}
 
-          <Route path="profile" element={<Profile />} />
+          {/* <Route path="profile" element={<Profile />} /> */}
         </Route>
-      </Route> */}
+      </Route>
 
       {/* Default */}
       <Route path="*" element={<Navigate to="/login" replace />} />
