@@ -6,7 +6,7 @@ import AppLayout from "../components/layout/AppLayout";
 
 import Auth from "../pages/auth/Auth";
 import Dashboard from "../pages/dashboard/Dashboard";
-// import ExpenseList from "../pages/expenses/ExpenseList";
+import ExpenseList from "../pages/expenses/ExpenseList";
 // import ExpenseCreate from "../pages/expenses/ExpenseCreate";
 // import ExpenseDetails from "../pages/expenses/ExpenseDetails";
 // import UserList from "../pages/users/UserList";
@@ -26,13 +26,13 @@ const AppRoutes = () => {
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
 
-          {/* <Route path="expenses">
+          <Route path="expenses">
             <Route index element={<ExpenseList />} />
-            <Route path="new" element={<ExpenseCreate />} />
-            <Route path=":id" element={<ExpenseDetails />} />
+            {/* <Route path="new" element={<ExpenseCreate />} />
+            <Route path=":id" element={<ExpenseDetails />} /> */}
           </Route>
 
-          <Route element={<RoleGuard allowed={["manager"]} />}>
+          {/* <Route element={<RoleGuard allowed={["manager"]} />}>
             <Route path="users" element={<UserList />} />
             <Route path="users/new" element={<UserCreate />} />
             <Route path="company" element={<CompanyDetails />} />
