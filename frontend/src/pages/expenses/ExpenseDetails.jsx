@@ -46,7 +46,7 @@ const ExpenseDetails = () => {
       toast.success("Expense deleted");
       navigate("/app/expenses");
     } catch {
-      toast.error("Expense Delete failed");
+      toast.error("Expense Delete Failed");
     }
   };
 
@@ -56,7 +56,7 @@ const ExpenseDetails = () => {
       toast.success("Expense submitted");
       navigate("/app/expenses");
     } catch {
-      toast.error("Submit failed");
+      toast.error("Expense Submmision Failed");
     }
   };
 
@@ -66,7 +66,7 @@ const ExpenseDetails = () => {
       toast.success(`Expense ${decision}`);
       navigate("/app/expenses");
     } catch {
-      toast.error("Approval failed");
+      toast.error("Expense Approval Failed");
     }
   };
 
