@@ -13,5 +13,5 @@ export const deleteExpense = (id) => api.delete(`/expenses/${id}`);
 
 export const submitExpense = (id) => api.put(`/expenses/${id}/submit`);
 
-export const approveExpense = (id, data) =>
-  api.put(`/expenses/${id}/approve`, data);
+export const approveExpense = (id, decison) =>
+  api.put(`/expenses/${id}/approvals`, decison);
