@@ -38,8 +38,6 @@ const ExpenseDetails = () => {
     fetchExpense();
   }, [id, navigate]);
 
-  // ================= ACTIONS =================
-
   const handleDelete = async () => {
     if (!window.confirm("Delete this draft expense?")) return;
 
@@ -48,7 +46,7 @@ const ExpenseDetails = () => {
       toast.success("Expense deleted");
       navigate("/app/expenses");
     } catch {
-      toast.error("Delete failed");
+      toast.error("Expense Delete failed");
     }
   };
 
@@ -71,8 +69,6 @@ const ExpenseDetails = () => {
       toast.error("Approval failed");
     }
   };
-
-  // ===========================================
 
   if (loading) {
     return <div className="text-sm text-gray-500">Loading...</div>;
@@ -204,7 +200,6 @@ const ExpenseDetails = () => {
 
 export default ExpenseDetails;
 
-// ================= HELPER =================
 const Info = ({ label, value }) => (
   <div>
     <p className="text-xs text-gray-500">{label}</p>
