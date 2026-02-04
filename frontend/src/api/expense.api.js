@@ -5,7 +5,9 @@ export const getExpenses = (status) =>
 
 export const getExpenseById = (id) => api.get(`/expenses/${id}`);
 
-export const createExpense = (payload) => api.post("/expenses/create-expense", payload);
+export const createExpense = (payload) => {
+  return api.post("/expenses/create-expense", payload);
+};
 
 export const updateExpense = (id, data) => api.put(`/expenses/${id}`, data);
 

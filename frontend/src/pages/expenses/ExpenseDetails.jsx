@@ -147,6 +147,32 @@ const ExpenseDetails = () => {
         </table>
       </div>
 
+      {/* Attachments */}
+      <div className="bg-white border rounded-xl">
+        <div className="p-4 border-b font-medium text-gray-700">
+          Attachments
+        </div>
+
+        {expense.attachments && expense.attachments.length > 0 ? (
+          <ul className="p-4 space-y-2 text-sm">
+            {expense.attachments.map((link, idx) => (
+              <li key={idx}>
+                <a
+                  href={link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-indigo-600 hover:underline break-all"
+                >
+                  {link}
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div className="p-4 text-sm text-gray-500">No attachments</div>
+        )}
+      </div>
+
       {/* ACTIONS */}
       <div className="flex gap-3 flex-wrap">
         {/* EMPLOYEE ACTIONS */}

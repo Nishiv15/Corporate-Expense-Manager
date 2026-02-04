@@ -10,16 +10,14 @@ const CreateExpense = () => {
   const [form, setForm] = useState({
     title: "",
     department: "",
-    items: [
-      { description: "", quantity: 1, unitPrice: 0 }
-    ],
-    attachments: []
+    items: [{ description: "", quantity: 1, unitPrice: 0 }],
+    attachments: [""],
   });
 
   const calculateTotalAmount = () => {
     return form.items.reduce(
       (sum, item) => sum + item.quantity * item.unitPrice,
-      0
+      0,
     );
   };
 
@@ -33,10 +31,28 @@ const CreateExpense = () => {
     setForm({ ...form, items: updatedItems });
   };
 
+  const handleAttachmentChange = (index, value) => {
+    const updated = [...form.attachments];
+    updated[index] = value;
+    setForm({ ...form, attachments: updated });
+  };
+
+  const addAttachment = () => {
+    setForm({ ...form, attachments: [...form.attachments, ""] });
+  };
+
+  const removeAttachment = (index) => {
+    if (form.attachments.length === 1) return;
+    setForm({
+      ...form,
+      attachments: form.attachments.filter((_, i) => i !== index),
+    });
+  };
+
   const addItem = () => {
     setForm({
       ...form,
-      items: [...form.items, { description: "", quantity: 1, unitPrice: 0 }]
+      items: [...form.items, { description: "", quantity: 1, unitPrice: 0 }],
     });
   };
 
@@ -44,15 +60,15 @@ const CreateExpense = () => {
     if (form.items.length === 1) return;
     setForm({
       ...form,
-      items: form.items.filter((_, i) => i !== index)
+      items: form.items.filter((_, i) => i !== index),
     });
   };
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const totalAmount = calculateTotalAmount();
+
     if (!form.title || !form.department) {
       toast.error("Title and department are required");
       return;
@@ -68,13 +84,17 @@ const CreateExpense = () => {
       return;
     }
 
+    const cleanedAttachments = form.attachments.filter(
+      (link) => link.trim() !== "",
+    );
+
     const payload = {
       title: form.title,
       department: form.department,
       items: form.items,
       totalAmount,
-      attachments: form.attachments,
-      status: "draft"
+      attachments: cleanedAttachments,
+      status: "draft",
     };
 
     try {
@@ -89,12 +109,9 @@ const CreateExpense = () => {
     }
   };
 
-
   return (
     <div className="max-w-4xl space-y-6">
-      <h1 className="text-2xl font-semibold text-gray-800">
-        Create Expense
-      </h1>
+      <h1 className="text-2xl font-semibold text-gray-800">Create Expense</h1>
 
       <form
         onSubmit={handleSubmit}
@@ -121,9 +138,7 @@ const CreateExpense = () => {
 
         {/* ITEMS */}
         <div>
-          <h2 className="font-medium text-gray-700 mb-3">
-            Expense Items *
-          </h2>
+          <h2 className="font-medium text-gray-700 mb-3">Expense Items *</h2>
 
           {form.items.map((item, index) => (
             <div
@@ -178,6 +193,41 @@ const CreateExpense = () => {
           </button>
         </div>
 
+        {/* Attachments (Links only) */}
+        <div>
+          <h2 className="font-medium text-gray-700 mb-2">
+            Attachments (Links)
+          </h2>
+
+          {form.attachments.map((link, index) => (
+            <div key={index} className="flex gap-2 mb-2">
+              <input
+                type="url"
+                placeholder="https://drive.google.com/..."
+                value={link}
+                onChange={(e) => handleAttachmentChange(index, e.target.value)}
+                className="flex-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+              />
+
+              <button
+                type="button"
+                onClick={() => removeAttachment(index)}
+                className="text-red-500 text-sm"
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+
+          <button
+            type="button"
+            onClick={addAttachment}
+            className="text-sm text-indigo-600 hover:underline"
+          >
+            + Add another link
+          </button>
+        </div>
+
         {/* TOTAL */}
         <div className="text-right text-sm font-medium text-gray-700">
           Total Amount: ₹{calculateTotalAmount()}
@@ -210,9 +260,7 @@ export default CreateExpense;
 
 const Input = ({ label, ...props }) => (
   <div className="flex flex-col">
-    <label className="text-sm text-gray-600 mb-1">
-      {label}
-    </label>
+    <label className="text-sm text-gray-600 mb-1">{label}</label>
     <input
       {...props}
       className="border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
