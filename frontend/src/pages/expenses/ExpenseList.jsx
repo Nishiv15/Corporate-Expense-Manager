@@ -44,14 +44,12 @@ const ExpenseList = () => {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-800">Expenses</h1>
 
-        {user?.userType === "employee" && (
           <button
             onClick={() => navigate("/app/expenses/new")}
             className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-700"
           >
             + New Expense
           </button>
-        )}
       </div>
 
       {/* Filters */}
