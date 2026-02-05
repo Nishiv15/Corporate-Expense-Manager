@@ -70,6 +70,10 @@ const ExpenseDetails = () => {
     }
   };
 
+
+  const isSelfApproval = expense?.createdBy?._id?.toString() === user?._id?.toString(); 
+
+
   if (loading) {
     return <div className="text-sm text-gray-500">Loading...</div>;
   }
@@ -202,7 +206,7 @@ const ExpenseDetails = () => {
         )}
 
         {/* MANAGER ACTIONS */}
-        {isManager && expense.status === "submitted" && (
+        {isManager && expense.status === "submitted" && !isSelfApproval &&(
           <>
             <button
               onClick={() => handleApproval("approved")}
