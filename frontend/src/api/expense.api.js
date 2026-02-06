@@ -9,7 +9,7 @@ export const createExpense = (payload) => {
   return api.post("/expenses/create-expense", payload);
 };
 
-export const updateExpense = (id, data) => api.put(`/expenses/${id}`, data);
+export const updateExpense = (id, payload) => api.put(`/expenses/${id}`, payload);
 
 export const deleteExpense = (id) => api.delete(`/expenses/${id}`);
 

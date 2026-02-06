@@ -1,11 +1,20 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
-import { createExpense } from "../../api/expense.api";
+import {
+  createExpense,
+  getExpenseById,
+  updateExpense,
+} from "../../api/expense.api";
 
 const CreateExpense = () => {
   const navigate = useNavigate();
+
+  const { id } = useParams();
+  const isEditMode = Boolean(id);
+
   const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(false);
 
   const [form, setForm] = useState({
     title: "",
@@ -14,16 +23,52 @@ const CreateExpense = () => {
     attachments: [""],
   });
 
-  const calculateTotalAmount = () => {
-    return form.items.reduce(
-      (sum, item) => sum + item.quantity * item.unitPrice,
-      0,
-    );
-  };
+  useEffect(() => {
+    if (!isEditMode) return;
 
-  const handleChange = (e) => {
+    const fetchExpense = async () => {
+      try {
+        setPageLoading(true);
+        const res = await getExpenseById(id);
+        const expense = res.data.expense;
+
+        if (expense.status !== "draft") {
+          toast.error("Only draft expenses can be edited");
+          navigate("/app/expenses");
+          return;
+        }
+
+        setForm({
+          title: expense.title,
+          department: expense.department,
+          items:
+            expense.items?.length > 0
+              ? expense.items.map((item) => ({
+                  description: item.description || "",
+                  quantity: item.quantity ?? item.qty ?? 1,
+                  unitPrice: item.unitPrice ?? 0,
+                }))
+              : [{ description: "", quantity: 1, unitPrice: 0 }],
+          attachments:
+            expense.attachments?.length > 0 ? expense.attachments : [""],
+        });
+      } catch {
+        toast.error("Unable to load expense");
+        navigate("/app/expenses");
+      } finally {
+        setPageLoading(false);
+      }
+    };
+
+    fetchExpense();
+  }, [id, isEditMode, navigate]);
+
+
+  const calculateTotalAmount = () =>
+    form.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
+
+  const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
-  };
 
   const handleItemChange = (index, field, value) => {
     const updatedItems = [...form.items];
@@ -37,9 +82,8 @@ const CreateExpense = () => {
     setForm({ ...form, attachments: updated });
   };
 
-  const addAttachment = () => {
+  const addAttachment = () =>
     setForm({ ...form, attachments: [...form.attachments, ""] });
-  };
 
   const removeAttachment = (index) => {
     if (form.attachments.length === 1) return;
@@ -49,12 +93,11 @@ const CreateExpense = () => {
     });
   };
 
-  const addItem = () => {
+  const addItem = () =>
     setForm({
       ...form,
       items: [...form.items, { description: "", quantity: 1, unitPrice: 0 }],
     });
-  };
 
   const removeItem = (index) => {
     if (form.items.length === 1) return;
@@ -63,6 +106,7 @@ const CreateExpense = () => {
       items: form.items.filter((_, i) => i !== index),
     });
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -99,19 +143,33 @@ const CreateExpense = () => {
 
     try {
       setLoading(true);
-      await createExpense(payload);
-      toast.success("Expense saved as draft");
-      navigate("/app/expenses");
-    } catch (error) {
-      toast.error("Failed to save expense");
+
+      if (isEditMode) {
+        await updateExpense(id, payload);
+        toast.success("Expense updated");
+        navigate(`/app/expenses/${id}`);
+      } else {
+        await createExpense(payload);
+        toast.success("Expense saved as draft");
+        navigate("/app/expenses");
+      }
+    } catch {
+      toast.error(isEditMode ? "Update failed" : "Create failed");
     } finally {
       setLoading(false);
     }
   };
 
+
+  if (pageLoading) {
+    return <p className="text-sm text-gray-500">Loading...</p>;
+  }
+
   return (
     <div className="max-w-4xl space-y-6">
-      <h1 className="text-2xl font-semibold text-gray-800">Create Expense</h1>
+      <h1 className="text-2xl font-semibold text-gray-800">
+        {isEditMode ? "Edit Expense" : "Create Expense"}
+      </h1>
 
       <form
         onSubmit={handleSubmit}
@@ -122,17 +180,17 @@ const CreateExpense = () => {
           <Input
             label="Title *"
             name="title"
+            placeholder="Expense Title"
             value={form.title}
             onChange={handleChange}
-            placeholder="Expense title"
           />
 
           <Input
             label="Department *"
             name="department"
+            placeholder="HR/ IT/ Finance"
             value={form.department}
             onChange={handleChange}
-            placeholder="HR / IT / Finance"
           />
         </div>
 
@@ -166,7 +224,6 @@ const CreateExpense = () => {
               <Input
                 label="Unit Price"
                 type="number"
-                className="appearance-none"
                 min={0}
                 value={item.unitPrice}
                 onChange={(e) =>
@@ -193,7 +250,7 @@ const CreateExpense = () => {
           </button>
         </div>
 
-        {/* Attachments (Links only) */}
+        {/* ATTACHMENTS */}
         <div>
           <h2 className="font-medium text-gray-700 mb-2">
             Attachments (Links)
@@ -206,9 +263,8 @@ const CreateExpense = () => {
                 placeholder="https://drive.google.com/..."
                 value={link}
                 onChange={(e) => handleAttachmentChange(index, e.target.value)}
-                className="flex-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+                className="flex-1 border rounded-lg px-3 py-2 text-sm"
               />
-
               <button
                 type="button"
                 onClick={() => removeAttachment(index)}
@@ -240,12 +296,18 @@ const CreateExpense = () => {
             disabled={loading}
             className="px-6 py-2 rounded-lg bg-indigo-600 text-white text-sm disabled:opacity-60"
           >
-            {loading ? "Saving..." : "Save (Draft)"}
+            {loading
+              ? "Saving..."
+              : isEditMode
+                ? "Save Changes"
+                : "Save (Draft)"}
           </button>
 
           <button
             type="button"
-            onClick={() => navigate("/app/expenses")}
+            onClick={() =>
+              navigate(isEditMode ? `/app/expenses/${id}` : "/app/expenses")
+            }
             className="px-6 py-2 rounded-lg border text-sm"
           >
             Cancel

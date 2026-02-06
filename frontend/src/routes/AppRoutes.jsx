@@ -7,7 +7,7 @@ import AppLayout from "../components/layout/AppLayout";
 import Auth from "../pages/auth/Auth";
 import Dashboard from "../pages/dashboard/Dashboard";
 import ExpenseList from "../pages/expenses/ExpenseList";
-import ExpenseCreate from "../pages/expenses/ExpenseCreate";
+import CreateExpense from "../pages/expenses/ExpenseCreate";
 import ExpenseDetails from "../pages/expenses/ExpenseDetails";
 // import UserList from "../pages/users/UserList";
 // import UserCreate from "../pages/users/UserCreate";
@@ -28,8 +28,9 @@ const AppRoutes = () => {
 
           <Route path="expenses">
             <Route index element={<ExpenseList />} />
-            <Route path="new" element={<ExpenseCreate />} />
+            <Route path="new" element={<CreateExpense />} />
             <Route path=":id" element={<ExpenseDetails />} />
+            <Route path=":id/edit" element={<CreateExpense />} />
           </Route>
 
           {/* <Route element={<RoleGuard allowed={["manager"]} />}>
