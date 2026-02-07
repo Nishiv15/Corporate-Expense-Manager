@@ -9,7 +9,7 @@ import Dashboard from "../pages/dashboard/Dashboard";
 import ExpenseList from "../pages/expenses/ExpenseList";
 import CreateExpense from "../pages/expenses/ExpenseCreate";
 import ExpenseDetails from "../pages/expenses/ExpenseDetails";
-// import UserList from "../pages/users/UserList";
+import UserList from "../pages/users/UserList";
 // import UserCreate from "../pages/users/UserCreate";
 // import CompanyDetails from "../pages/company/CompanyDetails";
 // import Profile from "../pages/profile/Profile";
@@ -33,11 +33,11 @@ const AppRoutes = () => {
             <Route path=":id/edit" element={<CreateExpense />} />
           </Route>
 
-          {/* <Route element={<RoleGuard allowed={["manager"]} />}>
+          <Route element={<RoleGuard allowed={["manager"]} />}>
             <Route path="users" element={<UserList />} />
-            <Route path="users/new" element={<UserCreate />} />
-            <Route path="company" element={<CompanyDetails />} />
-          </Route> */}
+            {/* <Route path="users/new" element={<UserCreate />} /> */}
+            {/* <Route path="company" element={<CompanyDetails />} /> */}
+          </Route>
 
           {/* <Route path="profile" element={<Profile />} /> */}
         </Route>
