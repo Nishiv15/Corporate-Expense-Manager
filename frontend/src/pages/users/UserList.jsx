@@ -27,7 +27,7 @@ const UsersList = () => {
     if (!window.confirm("Delete this user?")) return;
 
     try {
-      await deleteUser(id);
+      await deleteUser(id, "Confirm");
       toast.success("User deleted");
       fetchUsers();
     } catch {

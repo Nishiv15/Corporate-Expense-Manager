@@ -36,6 +36,7 @@ const AppRoutes = () => {
           <Route element={<RoleGuard allowed={["manager"]} />}>
             <Route path="users" element={<UserList />} />
             <Route path="users/new" element={<CreateUser />} />
+            <Route path="users/:id/edit" element={<CreateUser />} />
             {/* <Route path="company" element={<CompanyDetails />} /> */}
           </Route>
 
