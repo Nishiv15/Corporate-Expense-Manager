@@ -10,7 +10,7 @@ import ExpenseList from "../pages/expenses/ExpenseList";
 import CreateExpense from "../pages/expenses/ExpenseCreate";
 import ExpenseDetails from "../pages/expenses/ExpenseDetails";
 import UserList from "../pages/users/UserList";
-// import UserCreate from "../pages/users/UserCreate";
+import CreateUser from "../pages/users/UserCreate";
 // import CompanyDetails from "../pages/company/CompanyDetails";
 // import Profile from "../pages/profile/Profile";
 
@@ -35,7 +35,7 @@ const AppRoutes = () => {
 
           <Route element={<RoleGuard allowed={["manager"]} />}>
             <Route path="users" element={<UserList />} />
-            {/* <Route path="users/new" element={<UserCreate />} /> */}
+            <Route path="users/new" element={<CreateUser />} />
             {/* <Route path="company" element={<CompanyDetails />} /> */}
           </Route>
 

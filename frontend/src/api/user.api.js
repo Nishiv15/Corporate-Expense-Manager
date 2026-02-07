@@ -4,7 +4,7 @@ export const getUsers = () => api.get("/user/");
 
 export const getUserById = (id) => api.get(`/user/${id}`);
 
-export const createUser = (data) => api.post("/user/register", data);
+export const createUser = (payload) => api.post("/user/register", payload);
 
 export const updateUser = (id, data) => api.put(`/user/${id}`, data);
 
