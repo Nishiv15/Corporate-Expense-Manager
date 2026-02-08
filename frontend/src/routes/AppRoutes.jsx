@@ -11,6 +11,7 @@ import CreateExpense from "../pages/expenses/ExpenseCreate";
 import ExpenseDetails from "../pages/expenses/ExpenseDetails";
 import UserList from "../pages/users/UserList";
 import CreateUser from "../pages/users/UserCreate";
+import UserDetails from "../pages/users/UserDetails";
 // import CompanyDetails from "../pages/company/CompanyDetails";
 // import Profile from "../pages/profile/Profile";
 
@@ -37,6 +38,7 @@ const AppRoutes = () => {
             <Route path="users" element={<UserList />} />
             <Route path="users/new" element={<CreateUser />} />
             <Route path="users/:id/edit" element={<CreateUser />} />
+            <Route path="users/:id" element={<UserDetails />} />
             {/* <Route path="company" element={<CompanyDetails />} /> */}
           </Route>
 
