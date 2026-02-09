@@ -12,8 +12,8 @@ import ExpenseDetails from "../pages/expenses/ExpenseDetails";
 import UserList from "../pages/users/UserList";
 import CreateUser from "../pages/users/UserCreate";
 import UserDetails from "../pages/users/UserDetails";
+import Profile from "../pages/profile/Profile";
 // import CompanyDetails from "../pages/company/CompanyDetails";
-// import Profile from "../pages/profile/Profile";
 
 const AppRoutes = () => {
   return (
@@ -42,7 +42,7 @@ const AppRoutes = () => {
             {/* <Route path="company" element={<CompanyDetails />} /> */}
           </Route>
 
-          {/* <Route path="profile" element={<Profile />} /> */}
+          <Route path="profile" element={<Profile />} />
         </Route>
       </Route>
 
