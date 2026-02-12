@@ -7,7 +7,9 @@ const UserSchema = new mongoose.Schema({
   passwordHash: { type: String },
   role: { type: mongoose.Schema.Types.ObjectId, ref: "Role" },
   userType: { type: String, enum: ["manager","employee","admin"], required: true },
-  isActive: { type: Boolean, default: true }
+  isActive: { type: Boolean, default: true },
+  resetCode: String,
+  resetCodeExpires: Date,
 }, { timestamps: true });
 
 // unique email per company
