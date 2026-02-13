@@ -3,10 +3,10 @@ import crypto from "crypto";
 import { Resend } from "resend";
 import User from "../models/User.js";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export const forgotPassword = async (req, res) => {
   try {
+    const resend = new Resend(process.env.RESEND_API_KEY);
+
     const { email } = req.body;
 
     if (!email)
@@ -26,7 +26,7 @@ export const forgotPassword = async (req, res) => {
 
     // Send email via Resend
     await resend.emails.send({
-      from: "Expense Manager <tnishiv@gmail.com>",
+      from: "Expense Manager <onboarding@resend.dev>",
       to: user.email,
       subject: "Password Reset Verification Code",
       html: `
