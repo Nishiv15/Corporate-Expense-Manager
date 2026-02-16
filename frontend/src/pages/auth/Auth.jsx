@@ -175,7 +175,7 @@ const Auth = () => {
 
         {/* Forgot password */}
         {mode === "login" && (
-          <div className="text-right text-sm text-indigo-600 hover:underline cursor-pointer">
+          <div className="text-right text-sm text-indigo-600 hover:underline cursor-pointer" onClick={() => navigate("/forgot-password")}>
             Forgot password?
           </div>
         )}

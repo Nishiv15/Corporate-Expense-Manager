@@ -13,13 +13,18 @@ import UserList from "../pages/users/UserList";
 import CreateUser from "../pages/users/UserCreate";
 import UserDetails from "../pages/users/UserDetails";
 import Profile from "../pages/profile/Profile";
-// import CompanyDetails from "../pages/company/CompanyDetails";
+import ForgotPassword from "../pages/auth/ForgotPassword";
+import VerifyCode from "../pages/auth/VerifyCode";
+import ResetPassword from "../pages/auth/ResetPassword";
 
 const AppRoutes = () => {
   return (
     <Routes>
       {/* Public */}
       <Route path="/login" element={<Auth />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/verify-code" element={<VerifyCode />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
       {/* Protected */}
       <Route element={<ProtectedRoute />}>
@@ -39,7 +44,6 @@ const AppRoutes = () => {
             <Route path="users/new" element={<CreateUser />} />
             <Route path="users/:id/edit" element={<CreateUser />} />
             <Route path="users/:id" element={<UserDetails />} />
-            {/* <Route path="company" element={<CompanyDetails />} /> */}
           </Route>
 
           <Route path="profile" element={<Profile />} />
