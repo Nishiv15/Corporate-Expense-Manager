@@ -9,13 +9,11 @@ export const forgotPassword = async (req, res) => {
 
     const { email } = req.body;
 
-    if (!email)
-      return res.status(400).json({ message: "Email is required" });
+    if (!email) return res.status(400).json({ message: "Email is required" });
 
     const user = await User.findOne({ email });
 
-    if (!user)
-      return res.status(404).json({ message: "User not found" });
+    if (!user) return res.status(404).json({ message: "User not found" });
 
     // Generate 6-digit code
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -30,11 +28,93 @@ export const forgotPassword = async (req, res) => {
       to: user.email,
       subject: "Password Reset Verification Code",
       html: `
-        <h2>Password Reset</h2>
-        <p>Your verification code is:</p>
-        <h1>${otp}</h1>
-        <p>This code expires in 10 minutes.</p>
-      `,
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+<body style="margin:0; padding:0; background-color:#f4f6f8; font-family: Arial, sans-serif;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding: 40px 0;">
+    <tr>
+      <td align="center">
+
+        <!-- Card Container -->
+        <table width="480" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:12px; padding:40px; box-shadow:0 4px 20px rgba(0,0,0,0.05);">
+          
+          <!-- Logo / Title -->
+          <tr>
+            <td align="center" style="padding-bottom:20px;">
+              <h2 style="margin:0; color:#111827;">Corporate Expense Manager</h2>
+            </td>
+          </tr>
+
+          <!-- Heading -->
+          <tr>
+            <td align="center" style="padding-bottom:20px;">
+              <h3 style="margin:0; color:#374151;">Password Reset Verification</h3>
+            </td>
+          </tr>
+
+          <!-- Message -->
+          <tr>
+            <td align="center" style="padding-bottom:30px; color:#6b7280; font-size:14px;">
+              We received a request to reset your password.
+              Use the verification code below to proceed.
+            </td>
+          </tr>
+
+          <!-- OTP Box -->
+          <tr>
+            <td align="center" style="padding-bottom:30px;">
+              <div style="
+                display:inline-block;
+                background:#eef2ff;
+                color:#4f46e5;
+                font-size:28px;
+                font-weight:bold;
+                letter-spacing:8px;
+                padding:15px 30px;
+                border-radius:8px;
+              ">
+                ${otp}
+              </div>
+            </td>
+          </tr>
+
+          <!-- Expiry -->
+          <tr>
+            <td align="center" style="color:#9ca3af; font-size:13px; padding-bottom:30px;">
+              This code will expire in <strong>10 minutes</strong>.
+            </td>
+          </tr>
+
+          <!-- Security Note -->
+          <tr>
+            <td align="center" style="color:#9ca3af; font-size:12px;">
+              If you did not request this password reset, you can safely ignore this email.
+            </td>
+          </tr>
+
+        </table>
+
+        <!-- Footer -->
+        <table width="480" cellpadding="0" cellspacing="0" style="margin-top:20px;">
+          <tr>
+            <td align="center" style="color:#9ca3af; font-size:12px;">
+              © ${new Date().getFullYear()} Corporate Expense Manager. All rights reserved.
+            </td>
+          </tr>
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
+`,
     });
 
     return res.json({ message: "Verification code sent" });
@@ -50,8 +130,7 @@ export const verifyOtp = async (req, res) => {
 
     const user = await User.findOne({ email });
 
-    if (!user)
-      return res.status(404).json({ message: "User not found" });
+    if (!user) return res.status(404).json({ message: "User not found" });
 
     if (
       user.resetCode !== code ||
@@ -74,8 +153,7 @@ export const resetPassword = async (req, res) => {
 
     const user = await User.findOne({ email });
 
-    if (!user)
-      return res.status(404).json({ message: "User not found" });
+    if (!user) return res.status(404).json({ message: "User not found" });
 
     if (
       user.resetCode !== code ||
