@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import useAuthStore from "../../app/authStore";
 import { getUserById, updateUser } from "../../api/user.api";
 import { getCompanyById } from "../../api/company.api";
+import useThemeStore from "../../app/themeStore";
 
 const Profile = () => {
   const { user: authUser } = useAuthStore();
@@ -14,16 +15,17 @@ const Profile = () => {
 
   const [password, setPassword] = useState("");
 
-  // ================= FETCH PROFILE DATA =================
+  const { theme, toggleTheme } = useThemeStore();
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        // 1️⃣ Fetch user info
+        //Fetch user info
         const userRes = await getUserById(authUser._id);
         const fetchedUser = userRes.data.user;
         setUser(fetchedUser);
 
-        // 2️⃣ Fetch company info
+        //Fetch company info
         if (fetchedUser.company) {
           const companyRes = await getCompanyById(fetchedUser.company);
           setCompany(companyRes.data.company);
@@ -37,8 +39,6 @@ const Profile = () => {
 
     fetchProfile();
   }, [authUser._id]);
-
-  // ================= PASSWORD UPDATE =================
 
   const handlePasswordUpdate = async (e) => {
     e.preventDefault();
@@ -54,15 +54,11 @@ const Profile = () => {
       toast.success("Password updated successfully");
       setPassword("");
     } catch (error) {
-      toast.error(
-        error.response?.data?.message || "Password update failed"
-      );
+      toast.error(error.response?.data?.message || "Password update failed");
     } finally {
       setSaving(false);
     }
   };
-
-  // ================= UI =================
 
   if (loading) {
     return <p className="text-sm text-gray-500">Loading...</p>;
@@ -72,9 +68,7 @@ const Profile = () => {
 
   return (
     <div className="max-w-4xl space-y-8">
-      <h1 className="text-2xl font-semibold text-gray-800">
-        Profile
-      </h1>
+      <h1 className="text-2xl font-semibold text-gray-800">Profile</h1>
 
       {/* USER INFO */}
       <Card title="User Information">
@@ -119,39 +113,52 @@ const Profile = () => {
           </button>
         </form>
       </Card>
+
+      {/*Dark Mode*/}
+      <Card title="Appearance">
+        <div className="flex items-center justify-between col-span-2">
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-700">
+            Dark Mode
+          </span>
+
+          <button
+            onClick={toggleTheme}
+            className={`w-12 h-6 flex items-center rounded-full p-1 transition ${
+              theme === "dark" ? "bg-indigo-600" : "bg-gray-300"
+            }`}
+          >
+            <div
+              className={`bg-white w-4 h-4 rounded-full shadow-md transform transition ${
+                theme === "dark" ? "translate-x-6" : ""
+              }`}
+            />
+          </button>
+        </div>
+      </Card>
+      
     </div>
   );
 };
 
 export default Profile;
 
-// ================= UI HELPERS =================
-
 const Card = ({ title, children }) => (
   <div className="bg-white border rounded-xl p-6 space-y-4">
-    <h2 className="text-sm font-semibold text-gray-700">
-      {title}
-    </h2>
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      {children}
-    </div>
+    <h2 className="text-sm font-semibold text-gray-700">{title}</h2>
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">{children}</div>
   </div>
 );
 
 const Info = ({ label, value }) => (
   <div>
     <p className="text-xs text-gray-500">{label}</p>
-    <p className="text-sm font-medium text-gray-800">
-      {value || "-"}
-    </p>
+    <p className="text-sm font-medium text-gray-800">{value || "-"}</p>
   </div>
 );
 
 const Input = ({ label, ...props }) => (
   <div className="flex flex-col">
-    <label className="text-sm text-gray-600 mb-1">
-      {label}
-    </label>
+    <label className="text-sm text-gray-600 mb-1">{label}</label>
     <input
       {...props}
       className="border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
