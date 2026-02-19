@@ -35,6 +35,7 @@ Corporate Expense Manager provides a **structured, role-based platform** where:
 - All actions are tracked and auditable
 - Expense lifecycle is clearly defined
 - Drafts, submissions, and approvals are securely managed
+- Password reset via OTP ensures secure account recovery
 
 ---
 
@@ -47,6 +48,7 @@ Corporate Expense Manager provides a **structured, role-based platform** where:
 - Reviews and approves/rejects expenses
 - Manages users (soft delete)
 - Can deactivate the company
+- Has access to dashboard analytics
 
 ### 🔹 Employee
 - Logs in using credentials created by the manager
@@ -54,12 +56,7 @@ Corporate Expense Manager provides a **structured, role-based platform** where:
 - Edits or deletes expenses while in draft
 - Submits expenses for approval
 - Views expense status and history
-
-### 🔹 Admin (Work in Progress)
-- Platform-level role intended for internal administration
-- Will manage companies and platform-wide settings
-- Not associated with any specific company
-- **Admin functionality is currently under development and not yet implemented**
+- Can update password from profile section
 
 ---
 
@@ -89,6 +86,8 @@ Draft → Submitted → Approved / Rejected
 - Soft deletion for users and companies
 - Backend-enforced authorization rules
 - JWT-based authentication
+- No self-approval policy for expense approvals
+- OTP-based password reset via email
 
 ---
 
@@ -100,11 +99,14 @@ Draft → Submitted → Approved / Rejected
 - MongoDB
 - Mongoose
 - JWT Authentication
+- Resend API (for OTP email verification)
 
 ### Frontend
 - React.js (Vite)
 - Tailwind CSS
 - JavaScript
+- Axios
+- Zustand (state management)
 
 ---
 
@@ -115,6 +117,10 @@ Draft → Submitted → Approved / Rejected
 - Draft-based expense creation
 - Approval workflow
 - Approval history tracking
+- Expense filtering by status
+- URL-based attachment support
+- Dashboard with expense statistics
+- Profile management and password update
 - Soft deletion for data safety
 - Scalable architecture for future admin features
 
@@ -123,15 +129,6 @@ Draft → Submitted → Approved / Rejected
 ## 🚀 Future Enhancements
 
 Planned improvements include:
-- Admin dashboard (platform-level)
-- Expense analytics and reports
 - Notification system (email / in-app)
 - Multi-level approval workflows
-- Budget tracking and alerts
-- Mobile-friendly UI
-
----
-
-## 📌 Project Status
-
-This project is currently under active development and focuses on delivering a **robust MVP** with clean architecture and real-world business logic.
+- Verified email domain configuration for production
