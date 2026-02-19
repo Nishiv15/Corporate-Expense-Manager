@@ -3,7 +3,6 @@ import toast from "react-hot-toast";
 import useAuthStore from "../../app/authStore";
 import { getUserById, updateUser } from "../../api/user.api";
 import { getCompanyById } from "../../api/company.api";
-import useThemeStore from "../../app/themeStore";
 
 const Profile = () => {
   const { user: authUser } = useAuthStore();
@@ -14,8 +13,6 @@ const Profile = () => {
   const [saving, setSaving] = useState(false);
 
   const [password, setPassword] = useState("");
-
-  const { theme, toggleTheme } = useThemeStore();
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -112,30 +109,7 @@ const Profile = () => {
             {saving ? "Updating..." : "Update Password"}
           </button>
         </form>
-      </Card>
-
-      {/*Dark Mode*/}
-      <Card title="Appearance">
-        <div className="flex items-center justify-between col-span-2">
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-700">
-            Dark Mode
-          </span>
-
-          <button
-            onClick={toggleTheme}
-            className={`w-12 h-6 flex items-center rounded-full p-1 transition ${
-              theme === "dark" ? "bg-indigo-600" : "bg-gray-300"
-            }`}
-          >
-            <div
-              className={`bg-white w-4 h-4 rounded-full shadow-md transform transition ${
-                theme === "dark" ? "translate-x-6" : ""
-              }`}
-            />
-          </button>
-        </div>
-      </Card>
-      
+      </Card>     
     </div>
   );
 };
