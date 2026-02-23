@@ -130,5 +130,5 @@ Draft → Submitted → Approved / Rejected
 
 Planned improvements include:
 - Notification system (email / in-app)
-- Multi-level approval workflows
+- Pagination (for expenses)
 - Verified email domain configuration for production
