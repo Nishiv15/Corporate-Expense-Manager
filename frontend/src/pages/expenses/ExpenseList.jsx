@@ -18,6 +18,8 @@ const ExpenseList = () => {
   const [status, setStatus] = useState("all");
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     const fetchExpenses = async () => {
@@ -25,9 +27,12 @@ const ExpenseList = () => {
         setLoading(true);
 
         const res =
-          status === "all" ? await getExpenses() : await getExpenses(status);
+          status === "all"
+            ? await getExpenses({ page, limit: 20 })
+            : await getExpenses({ status, page, limit: 20 });
 
         setExpenses(res.data.expenses);
+        setTotalPages(res.data.totalPages);
       } catch (error) {
         console.error("Expenses fetch error:", error);
       } finally {
@@ -36,7 +41,7 @@ const ExpenseList = () => {
     };
 
     fetchExpenses();
-  }, [status]);
+  }, [status, page]);
 
   return (
     <div className="space-y-6">
@@ -44,12 +49,12 @@ const ExpenseList = () => {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-800">Expenses</h1>
 
-          <button
-            onClick={() => navigate("/app/expenses/new")}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-700"
-          >
-            + New Expense
-          </button>
+        <button
+          onClick={() => navigate("/app/expenses/new")}
+          className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-700"
+        >
+          + New Expense
+        </button>
       </div>
 
       {/* Filters */}
@@ -138,6 +143,29 @@ const ExpenseList = () => {
           </table>
         )}
       </div>
+
+      <div className="flex justify-between items-center mt-6">
+        <button
+          onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+          disabled={page === 1}
+          className="px-4 py-2 border rounded-lg text-sm disabled:opacity-50"
+        >
+          Previous
+        </button>
+
+        <span className="text-sm">
+          Page {page} of {totalPages}
+        </span>
+
+        <button
+          onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+          disabled={page === totalPages}
+          className="px-4 py-2 border rounded-lg text-sm disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
+      
     </div>
   );
 };

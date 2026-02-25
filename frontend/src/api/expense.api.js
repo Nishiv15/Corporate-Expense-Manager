@@ -1,7 +1,10 @@
 import api from "./axios";
 
-export const getExpenses = (status) =>
-  api.get(`/expenses${status ? `?status=${status}` : ""}`);
+export const getExpenses = ({ status, page = 1, limit = 20 } = {}) => {
+  const params = { page, limit };
+  if (status && status !== "all") params.status = status;
+  return api.get("/expenses", { params });
+};
 
 export const getExpenseById = (id) => api.get(`/expenses/${id}`);
 
