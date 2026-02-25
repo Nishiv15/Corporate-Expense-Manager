@@ -80,7 +80,12 @@ const listExpenses = async (req, res) => {
   try {
     const companyId = req.user.company;
     const userId = req.user._id;
-    const { status = "all" } = req.query;
+    // const { status = "all" } = req.query;
+    const { status, page = 1, limit = 20 } = req.query;
+
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const skip = (pageNumber - 1) * limitNumber;
 
     if (!companyId) {
       return res.status(400).json({ message: "User not associated with a company" });
@@ -105,14 +110,21 @@ const listExpenses = async (req, res) => {
       ];
     }
 
+    const total = await ExpenseRequest.countDocuments(filter);
+
     const expenses = await ExpenseRequest.find(filter)
       .populate("createdBy", "name email userType")
       .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limitNumber)
       .lean();
 
     return res.json({
+      page: pageNumber,
+      totalPages: Math.ceil(total / limitNumber),
+      totalItems: total,
       count: expenses.length,
-      expenses
+      expenses,
     });
 
   } catch (error) {
