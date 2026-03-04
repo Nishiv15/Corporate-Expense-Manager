@@ -7,11 +7,16 @@ const UsersList = () => {
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const fetchUsers = async () => {
+
+  const fetchUsers = async (page = 1) => {
     try {
-      const res = await getUsers();
+      setLoading(true);
+      const res = await getUsers(page);
       setUsers(res.data.users || []);
+      setTotalPages(res.data.totalPages || 1);
     } catch {
       toast.error("Failed to load users");
     } finally {
@@ -20,8 +25,8 @@ const UsersList = () => {
   };
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    fetchUsers(currentPage);
+  }, [currentPage]);
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this user?")) return;
@@ -102,6 +107,25 @@ const UsersList = () => {
           </tbody>
         </table>
       </div>
+
+      <div className="flex justify-between items-center mt-4">
+        <button
+          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+          className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+        >
+          Previous
+        </button>
+        <span>Page {currentPage} of {totalPages}</span>
+        <button
+          onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+          disabled={currentPage === totalPages}
+          className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
+      
     </div>
   );
 };
