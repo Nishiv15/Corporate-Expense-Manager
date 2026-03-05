@@ -425,15 +425,22 @@ const getUsers = async (req, res) => {
 
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
     const limit = Math.max(1, parseInt(req.query.limit, 10) || 20);
+    const search = req.query.search?.trim() || "";
     const skip = (page - 1) * limit;
 
-    // applying filter for removing non-active users
+    // Applying filter for removing non-active users
     const filter = {
       company: requester.company,
       isActive: true
     };
 
-    // run count and find in parallel for correctness and performance
+    if (search) {
+      // regex engine doesn't crash on invalid sequences 
+      const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      filter.name = { $regex: escapedSearch, $options: "i" };
+    }
+
+    // Run count and find in parallel for correctness and performance
     const [totalUsers, users] = await Promise.all([
       User.countDocuments(filter),
       User.find(filter).skip(skip).limit(limit).sort({ createdAt: -1 }).lean()
@@ -442,7 +449,7 @@ const getUsers = async (req, res) => {
     const totalPages = Math.max(1, Math.ceil(totalUsers / limit));
     const currentPage = Math.min(page, totalPages);
 
-    // if requested page > totalPages, refetch the last page users
+    // If requested page > totalPages, refetch the last page users
     let pagedUsers = users;
     if (page > totalPages && totalUsers > 0) {
       const newSkip = (totalPages - 1) * limit;

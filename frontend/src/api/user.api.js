@@ -1,8 +1,8 @@
 import api from "./axios";
 
-export const getUsers = (page = 1) =>
+export const getUsers = (page = 1, search = "") =>
   api.get("/user/", {
-    params: { page, limit: 20 },
+    params: { page, limit: 20, search },
   });
 
 export const getUserById = (id) => api.get(`/user/${id}`);
