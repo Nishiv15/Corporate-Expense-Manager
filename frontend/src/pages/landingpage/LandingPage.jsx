@@ -25,16 +25,10 @@ const LandingPage = () => {
                 <FileText className="text-white w-5 h-5 sm:w-6 sm:h-6" />
               </div>
               <span className="text-lg sm:text-xl font-bold text-slate-800 tracking-tight truncate max-w-[150px] sm:max-w-none">
-                Corporate Expense Manager
+                SpendSync
               </span>
             </div>
             <div className="flex items-center gap-3 sm:gap-6">
-              {/* <button 
-                onClick={() => navigate("/login")}
-                className="text-slate-600 hover:text-indigo-600 font-medium text-sm sm:text-base transition-colors"
-              >
-                Log in
-              </button> */}
               <button 
                 onClick={() => navigate("/login")}
                 className="bg-indigo-600 text-white px-4 py-2 sm:px-6 sm:py-2.5 rounded-lg text-sm sm:text-base font-medium hover:bg-indigo-700 transition-colors shadow-sm whitespace-nowrap"
@@ -217,7 +211,7 @@ const LandingPage = () => {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
           <FileText className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-500 shrink-0" />
           <span className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-            Corporate Expense Manager
+            SpendSync
           </span>
         </div>
         <p className="text-sm sm:text-base">© {new Date().getFullYear()} All rights reserved. Built for modern teams.</p>

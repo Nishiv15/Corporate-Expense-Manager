@@ -110,7 +110,7 @@ const Auth = () => {
 
       {/* Heading */}
       <h1 className="text-2xl font-semibold text-center">
-        Corporate Expense Manager
+        SpendSync
       </h1>
       <p className="text-sm text-gray-500 text-center mt-1 mb-6">
         {mode === "login"

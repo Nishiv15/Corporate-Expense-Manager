@@ -26,7 +26,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         {/* Header */}
         <div className="flex items-center justify-between px-4 h-16 border-b">
           <h2 className="text-lg font-semibold text-indigo-600">
-            Expense Manager
+            SpendSync
           </h2>
           <button
             onClick={onClose}
