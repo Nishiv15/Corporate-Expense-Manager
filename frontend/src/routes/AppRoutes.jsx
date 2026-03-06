@@ -16,11 +16,13 @@ import Profile from "../pages/profile/Profile";
 import ForgotPassword from "../pages/auth/ForgotPassword";
 import VerifyCode from "../pages/auth/VerifyCode";
 import ResetPassword from "../pages/auth/ResetPassword";
+import LandingPage from "../pages/landingpage/LandingPage";
 
 const AppRoutes = () => {
   return (
     <Routes>
       {/* Public */}
+      <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<Auth />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/verify-code" element={<VerifyCode />} />
@@ -51,7 +53,7 @@ const AppRoutes = () => {
       </Route>
 
       {/* Default */}
-      <Route path="*" element={<Navigate to="/login" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 };
