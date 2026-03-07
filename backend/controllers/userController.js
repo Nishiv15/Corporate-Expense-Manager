@@ -443,7 +443,7 @@ const getUsers = async (req, res) => {
     // Run count and find in parallel for correctness and performance
     const [totalUsers, users] = await Promise.all([
       User.countDocuments(filter),
-      User.find(filter).skip(skip).limit(limit).sort({ createdAt: -1 }).lean()
+      User.find(filter).skip(skip).limit(limit).sort({ createdAt: -1 }).populate("role").lean()
     ]);
 
     const totalPages = Math.max(1, Math.ceil(totalUsers / limit));
@@ -453,7 +453,7 @@ const getUsers = async (req, res) => {
     let pagedUsers = users;
     if (page > totalPages && totalUsers > 0) {
       const newSkip = (totalPages - 1) * limit;
-      pagedUsers = await User.find(filter).skip(newSkip).limit(limit).sort({ createdAt: -1 }).lean();
+      pagedUsers = await User.find(filter).skip(newSkip).limit(limit).sort({ createdAt: -1 }).populate("role").lean();
     }
 
     return res.json({
