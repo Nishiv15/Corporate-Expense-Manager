@@ -1,21 +1,11 @@
 import { NavLink, Link } from "react-router-dom";
-import { X, Wallet, ChevronRight } from "lucide-react";
+import { X, Wallet, ChevronRight, LogOut } from "lucide-react";
 import useAuthStore from "../../app/authStore";
 import { sidebarConfig } from "../../utils/sidebarConfig";
 
 const Sidebar = ({ isOpen, onClose }) => {
-  const { user } = useAuthStore();
+  const { user, logout } = useAuthStore();
   const menuItems = sidebarConfig[user?.userType] || [];
-
-  const getInitials = (name) => {
-    if (!name) return "US";
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-  };
 
   return (
     <>
@@ -88,26 +78,19 @@ const Sidebar = ({ isOpen, onClose }) => {
           ))}
         </nav>
 
-        {/* Profile Card Footer */}
+        {/* Sign Out Footer */}
         {user && (
           <div className="p-4 border-t border-slate-100 mt-auto bg-slate-50/30">
-            <Link
-              to="/app/profile"
-              onClick={onClose}
-              className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white hover:shadow-sm hover:border-slate-100 border border-transparent transition-all duration-300 group"
+            <button
+              onClick={() => {
+                onClose?.();
+                logout();
+              }}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-red-50 hover:bg-red-500 text-red-600 hover:text-white transition-all duration-300 shadow-sm shadow-red-100/50 hover:shadow-md hover:shadow-red-200/50 cursor-pointer border-none hover:-translate-y-0.5 active:translate-y-0"
             >
-              <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-blue-600 text-white font-semibold text-xs flex items-center justify-center shrink-0 shadow-md shadow-indigo-100 group-hover:scale-105 transition-transform duration-200">
-                {getInitials(user?.name)}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-slate-700 truncate group-hover:text-indigo-600 transition-colors">
-                  {user?.name}
-                </p>
-                <p className="text-[10px] text-slate-400 truncate capitalize font-medium">
-                  {user?.userType}
-                </p>
-              </div>
-            </Link>
+              <LogOut size={16} />
+              <span>Sign Out</span>
+            </button>
           </div>
         )}
       </aside>
